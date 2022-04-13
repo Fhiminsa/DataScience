@@ -43,3 +43,32 @@ months_dict = {
 }
 df['order_date'] = pd.to_datetime(df['order_date'].apply(lambda x: str(x)[-4:] + "-" + months_dict[str(x)[:3]] + "-" + str(x)[4:7]))
 print("Tipe data:\n", df.dtypes)
+
+# Mengatasi missing value pada city, province dan brand
+print("\n[5] Mengatasi missing value")
+df[['city', 'province']] = df[['city', 'province']].fillna('uknown')
+df['brand'] = df['brand'].fillna('no_brand')
+print("Info :\n", df.info())
+
+# Membuat kolom baru "city/province" menggabungkan kolom city dan privince
+print("\n[6] Membuat kolom city/province")
+df['city/province'] = df['city'] + '/' + df['province']
+df.drop(['city', 'province'], axis=1, inplace=True)
+print(df.head())
+
+# Membuat hierarchical index dari kolom "city/province", "order_date", "customer_id", "order_id", "product_id"
+print("\n[7] Membuat hierarchical index")
+df = df.set_index(['city/province', 'order_date', 'customer_id', 'order_id', 'product_id'])
+df = df.sort_index()
+print(df.head())
+
+# membuat kolom total price yang didapat dari hasil perkalian dari quantity dan item_price
+print("\n[8] Mmebuat kolom total_price")
+df['total_price'] = df['quantity'] * df['item_price']
+print(df.head())
+
+# Melakukan slice data
+print("\n[9] Melakukan slice data hanya untuk data januari 2019")
+idx = pd.IndexSlice
+df_jan2019 = df.loc[idx[:, "2019-01-01":"2019-01-31"],:]
+print("Dataset Akhir :\n", df_jan2019.head())
